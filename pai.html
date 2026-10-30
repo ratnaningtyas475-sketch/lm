@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petualangan Putri Salju - Belajar PAI Kelas 5</title>
+    <!-- Tailwind CSS untuk Styling yang indah dan responsif -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Animasi kustom untuk elemen game */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* Pengaturan khusus saat mencetak sertifikat */
+        @media print {
+            body { 
+                background: white !important; 
+                padding: 0 !important; 
+                margin: 0 !important; 
+            }
+            .no-print { display: none !important; }
+            #app-container {
+                background: none !important;
+                min-height: auto !important;
+            }
+            #screen-certificate { 
+                display: block !important; 
+                position: absolute; 
+                left: 0; 
+                top: 0; 
+                width: 100%; 
+                border: 10px double #ca8a04 !important; 
+                background-color: #fefce8 !important; 
+                box-shadow: none !important;
+                padding: 40px !important;
+            }
+            #screen-start, #screen-quiz, #screen-result { 
+                display: none !important; 
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-b from-blue-900 to-indigo-900 text-gray-800 font-sans antialiased min-h-screen">
+
+    <!-- Container Utama -->
+    <div id="app-container" class="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+        
+        <!-- Hiasan Latar Belakang (Nuansa Hutan Ajaib & Malam) -->
+        <div class="absolute top-10 left-10 text-4xl opacity-50 animate-float no-print">🌲</div>
+        <div class="absolute top-20 right-20 text-4xl opacity-50 animate-float no-print" style="animation-delay: 1s;">✨</div>
+        <div class="absolute bottom-10 left-20 text-4xl opacity-50 animate-float no-print" style="animation-delay: 2s;">🦉</div>
+        <div class="absolute bottom-20 right-10 text-4xl opacity-50 animate-float no-print">🌲</div>
+
+        <!-- Kartu Utama Putih -->
+        <div class="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl p-6 md:p-10 w-full max-w-3xl z-10 border-4 border-yellow-400 relative">
+            
+            <!-- SCREEN 1: MULAI GAME -->
+            <div id="screen-start" class="text-center">
+                <div class="text-6xl mb-4 animate-float">👸🏻🏰🍎</div>
+                <h1 class="text-3xl md:text-4xl font-bold text-blue-900 mb-2">Petualangan Putri Salju</h1>
+                <h2 class="text-xl text-yellow-600 font-semibold mb-6">Misi Belajar PAI Kelas 5</h2>
+                <p class="text-gray-600 mb-8 leading-relaxed">
+                    Halo teman-teman! Putri Salju tersesat di Hutan Ajaib. Bantu ia kembali ke istananya dengan menjawab <strong>60 pertanyaan</strong> seputar <em>Surat At-Tin</em> dan <em>Beriman kepada Allah</em> dengan benar. <br>
+                    Siapkan dirimu dan dapatkan Sertifikat Kehormatan di akhir petualangan!
+                </p>
+
+                <div class="max-w-sm mx-auto mb-6">
+                    <label for="studentName" class="block text-left text-sm font-bold text-gray-700 mb-2">Masukkan Nama Pahlawan (Namamu):</label>
+                    <input type="text" id="studentName" placeholder="Contoh: Aisyah" class="w-full px-4 py-3 rounded-xl border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition text-lg text-center" autocomplete="off">
+                    <p id="nameWarning" class="text-red-500 text-sm mt-2 hidden">Ups! Tolong tulis namamu dulu ya sebelum mulai.</p>
+                </div>
+
+                <button onclick="startApp()" class="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold py-4 px-10 rounded-full shadow-lg transform hover:scale-105 transition-all text-xl">
+                    Mulai Petualangan 🚀
+                </button>
+            </div>
+
+            <!-- SCREEN 2: KUIS -->
+            <div id="screen-quiz" class="hidden">
+                <!-- Header Kuis: Progress -->
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-sm font-bold text-blue-800 bg-blue-100 px-3 py-1 rounded-full" id="q-number">Pertanyaan 1 dari 60</span>
+                    <span class="text-2xl" id="feedback-emoji">🍎</span>
+                </div>
+                
+                <!-- Progress bar -->
+                <div class="w-full bg-gray-200 rounded-full h-3 mb-8 overflow-hidden border border-gray-300">
+                    <div id="progress-bar" class="bg-green-500 h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+
+                <!-- Teks Pertanyaan -->
+                <h3 id="q-text" class="text-xl md:text-2xl font-bold text-gray-800 mb-8 leading-snug text-center">
+                    Pertanyaan muncul di sini...
+                </h3>
+
+                <!-- Pilihan Jawaban -->
+                <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                    <!-- Tombol pilihan digenerate via JS -->
+                </div>
+
+                <!-- Tombol Selanjutnya (Muncul setelah dijawab) -->
+                <div class="text-center">
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full shadow-md transition transform hover:scale-105 text-lg">
+                        Selanjutnya ➡️
+                    </button>
+                </div>
+            </div>
+
+            <!-- SCREEN 3: HASIL AKHIR -->
+            <div id="screen-result" class="hidden text-center">
+                <div class="text-6xl mb-4 animate-float">🎉👸🏻🏰</div>
+                <h2 class="text-3xl font-bold text-blue-900 mb-4">Hore! Berhasil!</h2>
+                <p class="text-lg text-gray-700 mb-6">
+                    Alhamdulillah, berkat bantuanmu Putri Salju berhasil keluar dari hutan ajaib dan kembali ke istana dengan selamat!
+                </p>
+                <div class="bg-blue-50 border-2 border-blue-200 rounded-2xl p-6 inline-block mb-8">
+                    <p class="text-gray-600 font-bold mb-2">Total Jawaban Benarmu:</p>
+                    <p class="text-5xl font-extrabold text-blue-700"><span id="final-score">0</span><span class="text-2xl text-gray-500"> / 60</span></p>
+                </div>
+                <br>
+                <button onclick="showCertificate()" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-4 px-10 rounded-full shadow-lg transform hover:scale-105 transition text-xl">
+                    📜 Ambil Sertifikatmu!
+                </button>
+            </div>
+
+        </div>
+
+        <!-- SCREEN 4: SERTIFIKAT (Ditampilkan di luar card utama agar bisa full-width saat print) -->
+        <div id="screen-certificate" class="hidden z-20 w-full max-w-4xl bg-yellow-50 border-[12px] border-double border-yellow-600 p-8 md:p-12 text-center rounded-xl shadow-2xl relative">
+            <div class="absolute top-4 left-4 text-4xl opacity-80 no-print">🍎</div>
+            <div class="absolute top-4 right-4 text-4xl opacity-80 no-print">🍎</div>
+            
+            <h2 class="text-3xl md:text-5xl font-serif text-yellow-800 font-extrabold mb-6 mt-4">SERTIFIKAT PENGHARGAAN</h2>
+            <p class="text-lg md:text-xl text-gray-700 mb-8 font-medium">Diberikan dengan bangga kepada:</p>
+            
+            <h3 id="cert-name" class="text-4xl md:text-5xl font-bold text-blue-900 border-b-4 border-gray-400 inline-block px-10 pb-2 mb-8 font-serif uppercase tracking-wider">
+                NAMA SISWA
+            </h3>
+            
+            <p class="text-lg md:text-xl text-gray-700 max-w-2xl mx-auto mb-8 leading-relaxed">
+                Telah berhasil menyelesaikan Misi Pembelajaran Interaktif PAI Kelas 5 Semester 1 
+                <strong>(Materi: Surat At-Tin & Beriman kepada Allah)</strong> dan menunjukkan semangat pantang menyerah membantu Putri Salju kembali ke istana.
+            </p>
+            
+            <div class="flex justify-center items-center gap-4 mb-12">
+                <span class="text-2xl font-bold bg-white px-8 py-3 rounded-full border-2 border-gray-300 shadow-sm text-gray-600">
+                    Skor Nilai: <span id="cert-score" class="text-blue-700 text-3xl">0</span> / 60
+                </span>
+            </div>
+            
+            <!-- Area Tanda Tangan -->
+            <div class="flex justify-between items-end mt-12 px-4 md:px-12">
+                <div class="text-center">
+                    <p class="text-gray-600 italic mb-1" id="cert-date">Tanggal</p>
+                    <div class="border-b-2 border-gray-800 w-32 md:w-40 mx-auto mt-10 mb-2"></div>
+                    <p class="text-gray-800 font-bold text-sm md:text-base">Tanggal Pencapaian</p>
+                </div>
+                <div class="text-center text-5xl opacity-20">
+                    🕌
+                </div>
+                <div class="text-center">
+                    <p class="text-gray-600 italic mb-1">Mengetahui,</p>
+                    <div class="border-b-2 border-gray-800 w-32 md:w-48 mx-auto mt-10 mb-2"></div>
+                    <p class="text-gray-800 font-bold text-sm md:text-base">Guru PAI Profesional</p>
+                </div>
+            </div>
+
+            <!-- Tombol Print (Sembunyi saat diprint) -->
+            <div class="mt-12 no-print">
+                <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transform hover:scale-105 transition flex items-center justify-center gap-2 mx-auto text-lg">
+                    🖨️ Cetak Sertifikat Ini
+                </button>
+                <button onclick="location.reload()" class="mt-4 text-gray-500 underline text-sm hover:text-gray-800">
+                    Main Lagi dari Awal
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- LOGIKA JAVASCRIPT GAME -->
+    <script>
+        // Data 60 Soal PAI Kelas 5 (30 At-Tin, 30 Iman Kepada Allah)
+        // Struktur: q = Pertanyaan, o = Pilihan Jawaban (Array), a = Index Jawaban Benar
+        const questions = [
+            // --- MATERI SURAT AT-TIN (1 - 30) ---
+            { q: "Surah At-Tin adalah surah dalam Al-Qur'an urutan ke-...", o: ["93", "94", "95", "96"], a: 2 },
+            { q: "Nama At-Tin diambil dari ayat pertama yang artinya...", o: ["Buah Zaitun", "Buah Tin", "Kota Mekah", "Gunung Sinai"], a: 1 },
+            { q: "Surah At-Tin diturunkan di kota...", o: ["Madinah", "Makkah", "Syam", "Mesir"], a: 1 },
+            { q: "Surah At-Tin terdiri atas ... ayat.", o: ["7", "8", "9", "10"], a: 1 },
+            { q: "Karena diturunkan di kota Makkah, surah At-Tin tergolong surah...", o: ["Makkiyah", "Madaniyah", "Qudsiyah", "Ilahiyah"], a: 0 },
+            { q: "Bunyi ayat pertama surah At-Tin adalah...", o: ["Wa turisinin", "Waz-zaitun", "Wat-tini waz-zaitun", "Wa hazal baladil amin"], a: 2 },
+            { q: "Kata 'waz-zaitun' pada ayat pertama bermakna...", o: ["Buah Tin", "Buah Kurma", "Buah Zaitun", "Buah Delima"], a: 2 },
+            { q: "Ayat 'Wa turisinin' (demi gunung Sinai) adalah ayat ke-...", o: ["1", "2", "3", "4"], a: 1 },
+            { q: "Di Gunung Sinai (Bukit Thursina), Allah berfirman secara langsung kepada Nabi...", o: ["Ibrahim a.s", "Isa a.s", "Muhammad saw", "Musa a.s"], a: 3 },
+            { q: "'Wa hazal baladil amin' artinya 'dan demi negeri yang aman'. Negeri yang dimaksud adalah...", o: ["Palestina", "Makkah", "Madinah", "Mesir"], a: 1 },
+            { q: "Dalam surah At-Tin dijelaskan bahwa manusia diciptakan dalam bentuk yang...", o: ["Biasa saja", "Sebaik-baiknya", "Kuat", "Lemah"], a: 1 },
+            { q: "Lafal 'Ahsanit taqwim' memiliki arti...", o: ["Bentuk yang sebaik-baiknya", "Tempat yang hina", "Pahala yang besar", "Hari kiamat"], a: 0 },
+            { q: "Allah akan mengembalikan manusia ke tempat yang serendah-rendahnya (neraka), kecuali orang yang...", o: ["Berharta banyak", "Kuat badannya", "Beriman dan beramal saleh", "Pintar di sekolah"], a: 2 },
+            { q: "Lafal 'Asfala safilin' pada ayat ke-5 mempunyai arti...", o: ["Pahala yang mengalir", "Tempat yang paling rendah/hina", "Bentuk yang sempurna", "Kota yang aman"], a: 1 },
+            { q: "Orang yang beriman dan beramal saleh akan mendapatkan pahala yang...", o: ["Sedikit", "Putus", "Tidak ada putusnya", "Sementara"], a: 2 },
+            { q: "'Falahum ajrun gairu mamnun' adalah bunyi surah At-Tin ayat ke-...", o: ["5", "6", "7", "8"], a: 1 },
+            { q: "Pada ayat ke-7, Allah mempertanyakan apa yang menyebabkan manusia mendustakan...", o: ["Hari kiamat / pembalasan", "Nabi dan Rasul", "Harta benda", "Kebaikan manusia"], a: 0 },
+            { q: "Ayat 'Alaisallahu bi'ahkamil hakimin' menegaskan bahwa Allah adalah...", o: ["Pencipta yang hebat", "Hakim yang paling adil", "Pemberi rezeki", "Maha Pengampun"], a: 1 },
+            { q: "'Alaisallahu bi'ahkamil hakimin' adalah penutup atau ayat ke-...", o: ["6", "7", "8", "9"], a: 2 },
+            { q: "Pesan utama dalam surah At-Tin adalah Allah memuliakan manusia, namun manusia akan menjadi hina jika...", o: ["Miskin", "Tidak beriman dan tidak beramal saleh", "Sakit", "Tidak punya pangkat"], a: 1 },
+            { q: "Pohon Tin banyak tumbuh di daerah...", o: ["Indonesia", "Syam (Timur Tengah)", "Eropa", "Amerika"], a: 1 },
+            { q: "Ada berapa hal yang dijadikan sumpah oleh Allah di awal surah At-Tin?", o: ["1", "2", "3", "4"], a: 2 }, 
+            { q: "Tujuan Allah bersumpah dengan nama tempat/buah dalam surah At-Tin adalah...", o: ["Memberikan hiburan", "Menegaskan pentingnya penciptaan manusia", "Menghukum manusia", "Menjelaskan sejarah nabi"], a: 1 },
+            { q: "Contoh perilaku beramal saleh (kebaikan) sebagai pengamalan surah At-Tin adalah...", o: ["Mengejek teman", "Membantu orang tua dan rajin shalat", "Bermain game seharian", "Membuang sampah sembarangan"], a: 1 },
+            { q: "Orang yang memiliki fisik sempurna namun akhlaknya buruk dan tidak taat, di akhirat akan dimasukkan ke...", o: ["Surga Firdaus", "Surga Adn", "Asfala safilin (Neraka)", "Taman indah"], a: 2 },
+            { q: "Mensyukuri nikmat tubuh yang sempurna 'Ahsanit taqwim' dilakukan dengan cara...", o: ["Sombong karena fisik", "Menggunakan tubuh untuk beribadah dan kebaikan", "Menyakiti orang lain", "Malas-malasan"], a: 1 },
+            { q: "Kata 'ajrun' dalam ayat ke-6 surah At-Tin memiliki arti...", o: ["Pahala", "Dosa", "Siksa", "Bentuk"], a: 0 },
+            { q: "Ayat 'Thumma radadnahu asfala safilin' merupakan ayat ke-...", o: ["3", "4", "5", "6"], a: 2 },
+            { q: "Kota Makkah disebut 'Al-Baladil Amin' karena kota tersebut...", o: ["Kota yang kaya", "Kota yang aman dan dilindungi Allah", "Kota wisata", "Kota industri"], a: 1 },
+            { q: "Hikmah terbesar dari mempelajari surah At-Tin adalah agar kita selalu...", o: ["Beriman, beramal saleh, dan yakin keadilan Allah", "Mencari buah tin", "Menghapal ayat tanpa tahu maknanya", "Mengingat gunung Sinai"], a: 0 },
+
+            // --- MATERI BERIMAN KEPADA ALLAH (Asmaul Husna) (31 - 60) ---
+            { q: "Percaya sepenuh hati, diucapkan lisan, dibuktikan dengan perbuatan adalah arti...", o: ["Islam", "Ihsan", "Iman", "Takwa"], a: 2 },
+            { q: "Beriman kepada Allah SWT merupakan rukun iman yang ke-...", o: ["1", "2", "3", "4"], a: 0 },
+            { q: "Kita dapat mengenal Allah lebih dekat melalui hal berikut, KECUALI...", o: ["Mengenal alam semesta", "Mempelajari Al-Qur'an", "Mempelajari Asmaul Husna", "Menyembah patung"], a: 3 },
+            { q: "Nama-nama Allah yang baik dan indah disebut...", o: ["Sifat Wajib", "Asmaul Husna", "Sifat Mustahil", "Mukjizat"], a: 1 },
+            { q: "Jumlah Asmaul Husna yang wajib kita ketahui adalah...", o: ["10", "25", "99", "114"], a: 2 },
+            { q: "Al-Mumit adalah salah satu Asmaul Husna yang berarti Allah Maha...", o: ["Menghidupkan", "Mematikan", "Kaya", "Mendengar"], a: 1 },
+            { q: "Setiap makhluk yang bernyawa pasti akan mati. Hal ini bukti bahwa Allah bersifat...", o: ["Al-Hayy", "Al-Qayyum", "Al-Ahad", "Al-Mumit"], a: 3 },
+            { q: "Cara meyakini sifat Al-Mumit dalam kehidupan sehari-hari adalah...", o: ["Takut keluar rumah", "Banyak mengumpulkan harta semata", "Rajin beramal saleh sebagai bekal setelah mati", "Bermalas-malasan"], a: 2 },
+            { q: "Kematian manusia dan makhluk lainnya hanya terjadi karena kehendak...", o: ["Malaikat Izrail", "Allah SWT", "Dokter", "Alam Semesta"], a: 1 },
+            { q: "Sikap orang yang mengimani sifat Al-Mumit ketika ada orang meninggal adalah...", o: ["Menangis berteriak-teriak", "Mendoakan dan mengambil pelajaran agar ingat mati", "Biasa saja tidak peduli", "Menyalahkan orang lain"], a: 1 },
+            { q: "Asmaul Husna Al-Hayy mempunyai arti Allah Maha...", o: ["Melihat", "Hidup kekal abadi", "Esa", "Mematikan"], a: 1 },
+            { q: "Manusia dan hewan akan mati, namun Allah tidak akan pernah mati karena Allah bersifat...", o: ["Al-Qayyum", "Al-Ahad", "Al-Hayy", "Al-Mumit"], a: 2 },
+            { q: "Semua kehidupan di alam semesta ini bersumber dari Yang Maha Hidup, yaitu...", o: ["Allah SWT", "Malaikat", "Matahari", "Air"], a: 0 },
+            { q: "Cara meneladani sifat Al-Hayy (Maha Hidup) bagi seorang pelajar adalah...", o: ["Memelihara kelangsungan hidup seperti menjaga kesehatan", "Menyakiti hewan peliharaan", "Merusak tanaman di sekolah", "Malas makan dan minum"], a: 0 },
+            { q: "Menggantungkan seluruh harapan hidup kita hanya kepada Allah adalah bukti iman kepada sifat...", o: ["Al-Ahad", "Al-Hayy", "Al-Mumit", "Al-Qayyum"], a: 1 },
+            { q: "Allah mengurus seluruh alam semesta sendirian tanpa bantuan siapa pun karena Allah bersifat...", o: ["Al-Hayy", "Al-Mumit", "Al-Qayyum", "Al-Ahad"], a: 2 },
+            { q: "Al-Qayyum artinya Allah Maha...", o: ["Mendengar", "Berdiri Sendiri / Mandiri", "Satu", "Penyayang"], a: 1 },
+            { q: "Contoh sikap anak kelas 5 yang meneladani sifat Al-Qayyum adalah...", o: ["Minta disuapi saat makan", "Merapikan tempat tidur dan menyiapkan buku sekolah sendiri", "Selalu menyontek PR teman", "Bergantung pada orang lain"], a: 1 },
+            { q: "Sifat mandiri sangat disukai Allah. Mandiri berarti...", o: ["Bekerja sama berbuat jahat", "Melakukan tugas sendiri tanpa selalu membebani orang lain", "Minta uang terus", "Tidak mau berteman"], a: 1 },
+            { q: "Kita butuh orang lain, sedangkan Allah tidak butuh siapa pun. Hal ini menunjukkan kesempurnaan sifat...", o: ["Al-Ahad", "Al-Qayyum", "Al-Hayy", "Al-Mumit"], a: 1 },
+            { q: "Al-Ahad memiliki arti Allah Maha...", o: ["Esa / Tunggal / Satu", "Hidup", "Mandiri", "Mematikan"], a: 0 },
+            { q: "Surah di dalam Al-Qur'an yang sangat jelas menerangkan bahwa Allah itu Esa (Al-Ahad) adalah...", o: ["Al-Falaq", "An-Nas", "Al-Ikhlas", "Al-Fatihah"], a: 2 },
+            { q: "Meyakini Allah bersifat Al-Ahad berarti meyakini bahwa Tuhan semesta alam jumlahnya...", o: ["Banyak", "Tiga", "Dua", "Satu"], a: 3 },
+            { q: "Perbuatan menyekutukan Allah (menganggap ada Tuhan selain Allah) disebut...", o: ["Syirik", "Munafik", "Fasik", "Murtad"], a: 0 },
+            { q: "Cara meneladani sifat Al-Ahad dalam kehidupan adalah...", o: ["Meminta pertolongan kepada dukun/pohon besar", "Hanya berdoa dan menyembah kepada Allah SWT", "Percaya pada ramalan bintang", "Membawa jimat keselamatan"], a: 1 },
+            { q: "Menjauhi perbuatan syirik adalah bukti nyata seseorang beriman kepada sifat...", o: ["Al-Hayy", "Al-Mumit", "Al-Qayyum", "Al-Ahad"], a: 3 },
+            { q: "Anak yang beriman kepada Allah akan selalu mengucapkan ... ketika terhindar dari musibah.", o: ["Astaghfirullah", "Alhamdulillah", "Innalillahi", "Allahu Akbar"], a: 1 },
+            { q: "Sebagai makhluk ciptaan Allah yang mulia, tugas utama manusia di bumi adalah...", o: ["Merusak alam", "Beribadah kepada-Nya", "Tidur saja", "Hanya mencari kekayaan"], a: 1 },
+            { q: "Ketaatan kepada Allah dibuktikan dengan cara melaksanakan perintah-Nya dan...", o: ["Menjauhi larangan-Nya", "Mengerjakan larangan-Nya", "Membenci sesama", "Melupakan akhirat"], a: 0 },
+            { q: "Dengan mempelajari surah At-Tin dan Asmaul Husna, maka keimanan kita kepada Allah akan semakin...", o: ["Berkurang", "Biasa saja", "Kuat dan bertambah", "Hilang"], a: 2 }
+        ];
+
+        // State Aplikasi
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let studentName = "";
+        let isAnswered = false;
+
+        // Fungsi Memulai Game
+        function startApp() {
+            const nameInput = document.getElementById('studentName').value;
+            if(!nameInput.trim()) {
+                document.getElementById('nameWarning').classList.remove('hidden');
+                return;
+            }
+            studentName = nameInput.toUpperCase();
+            document.getElementById('screen-start').classList.add('hidden');
+            document.getElementById('screen-quiz').classList.remove('hidden');
+            renderQuestion();
+        }
+
+        // Fungsi Menampilkan Pertanyaan
+        function renderQuestion() {
+            isAnswered = false;
+            const q = questions[currentQuestionIndex];
+            
+            // Update Teks dan Progress
+            document.getElementById('q-number').innerText = `Pertanyaan ${currentQuestionIndex + 1} dari ${questions.length}`;
+            document.getElementById('q-text').innerText = q.q;
+            document.getElementById('feedback-emoji').innerText = "🍎"; // Reset emoji
+            
+            const progress = (currentQuestionIndex / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+
+            // Render Tombol Pilihan
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = ''; // Bersihkan pilihan sebelumnya
+
+            q.o.forEach((optText, index) => {
+                const btn = document.createElement('button');
+                // Styling tombol pilihan default
+                btn.className = "w-full text-left p-4 rounded-xl border-2 border-gray-200 bg-white hover:border-blue-400 hover:bg-blue-50 transition-all font-medium text-lg text-gray-700 shadow-sm focus:outline-none";
+                btn.innerText = optText;
+                btn.onclick = () => handleAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+
+            // Sembunyikan tombol selanjutnya
+            document.getElementById('next-btn').classList.add('hidden');
+        }
+
+        // Fungsi Memeriksa Jawaban
+        function handleAnswer(selectedIndex, btnElement) {
+            if (isAnswered) return; // Cegah klik berkali-kali
+            isAnswered = true;
+
+            const q = questions[currentQuestionIndex];
+            const optionsContainer = document.getElementById('options-container');
+            const buttons = optionsContainer.getElementsByTagName('button');
+
+            if (selectedIndex === q.a) {
+                // Jawaban Benar
+                btnElement.classList.replace('border-gray-200', 'border-green-500');
+                btnElement.classList.replace('bg-white', 'bg-green-100');
+                btnElement.classList.replace('text-gray-700', 'text-green-800');
+                btnElement.classList.remove('hover:border-blue-400', 'hover:bg-blue-50');
+                document.getElementById('feedback-emoji').innerText = "✅🍎";
+                score++;
+            } else {
+                // Jawaban Salah
+                btnElement.classList.replace('border-gray-200', 'border-red-500');
+                btnElement.classList.replace('bg-white', 'bg-red-100');
+                btnElement.classList.replace('text-gray-700', 'text-red-800');
+                btnElement.classList.remove('hover:border-blue-400', 'hover:bg-blue-50');
+                document.getElementById('feedback-emoji').innerText = "❌🍏";
+                
+                // Tunjukkan jawaban yang benar (Tutor sebaya / Pembelajaran formatif)
+                buttons[q.a].classList.replace('border-gray-200', 'border-green-500');
+                buttons[q.a].classList.replace('bg-white', 'bg-green-100');
+                buttons[q.a].classList.replace('text-gray-700', 'text-green-800');
+            }
+
+            // Munculkan tombol selanjutnya meski jawaban salah (sesuai instruksi)
+            document.getElementById('next-btn').classList.remove('hidden');
+        }
+
+        // Fungsi Pindah Pertanyaan
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                renderQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        // Fungsi Menampilkan Skor Akhir
+        function showResult() {
+            document.getElementById('screen-quiz').classList.add('hidden');
+            document.getElementById('screen-result').classList.remove('hidden');
+            document.getElementById('final-score').innerText = score;
+        }
+
+        // Fungsi Menampilkan Sertifikat
+        function showCertificate() {
+            // Sembunyikan kontainer kartu utama
+            document.querySelector('.bg-white\\/95').classList.add('hidden');
+            
+            // Tampilkan layar sertifikat
+            document.getElementById('screen-certificate').classList.remove('hidden');
+            
+            // Set Data Sertifikat
+            document.getElementById('cert-name').innerText = studentName;
+            document.getElementById('cert-score').innerText = score;
+
+            // Format Tanggal Bahasa Indonesia
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            const today = new Date().toLocaleDateString('id-ID', options);
+            document.getElementById('cert-date').innerText = today;
+        }
+    </script>
+</body>
+</html>
